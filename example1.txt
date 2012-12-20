@@ -1,0 +1,14 @@
+sys (mysys) {
+     type (obj1) {
+                prop1 = value;
+                prop2 = value;
+                prop3 = "123";
+                long = "this is a long string";
+     };
+     type (obj2) {
+     };
+
+     Another(ppp) {
+                name = ppp;
+     };
+};
