@@ -24,11 +24,13 @@ int main(int argc, char *argv[])
 
     bool result = false;
     try {
-	result = PropertyParser::parse_properties_simple(alltext, plist1);
-	//result = PropertyParser::parse_properties(f1, argv[1],  plist1);
+	istringstream iss(alltext);
+	result = PropertyParser::parse_properties_simple(iss, plist1);
+	//result = PropertyParser::parse_properties(iss, argv[1],  plist1);
     } catch (const exception &err) {
 	cout << err.what() << endl;
     }
+    cout << "Result = " << result << endl;
 
     PropertyParser::PrintPropertyVisitor pvis;
     pvis(plist1);

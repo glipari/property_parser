@@ -10,7 +10,7 @@ namespace PropertyParser {
     bool parse_properties(std::istream &is, const std::string &filename,
                           PropertyList &pset);
 
-    bool parse_properties_simple(std::string &is, PropertyList &pset);
+    bool parse_properties_simple(std::istream& input, PropertyList &pset);
 }
 
 #endif

@@ -65,7 +65,7 @@ namespace PropertyParser {
         return PropertyParser::myparse<property_set_grammar, PropertyList>(is, filename, pset);
     }
 
-    bool parse_properties_simple(std::string &is, PropertyList &pset)
+    bool parse_properties_simple(std::istream& is, PropertyList &pset)
     {
         return PropertyParser::simple_parse<property_set_grammar, PropertyList>(is, pset);
     }
