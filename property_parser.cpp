@@ -1,12 +1,18 @@
 #include <string>
 #include <iostream>
+#include <istream>
+#include <sstream>
+#include <iomanip>
+#include <vector>
+
 
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix_fusion.hpp>
 #include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 
-#include <gen_parse.hpp>
+#include <boost/spirit/include/support_multi_pass.hpp>
+#include <boost/spirit/include/classic_position_iterator.hpp>
 #include <property_parser.hpp>
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -59,15 +65,54 @@ namespace PropertyParser {
         }
     };   
 
-    bool parse_properties(std::istream &is, const std::string &filename,
-        PropertyList &pset)
+    bool parse_properties(std::istream& is, const std::string &filename, PropertyList &pset)
     {
-        return PropertyParser::myparse<property_set_grammar, PropertyList>(is, filename, pset);
-    }
+	namespace qi = boost::spirit::qi;
+        namespace ascii = boost::spirit::ascii;
+        namespace classic = boost::spirit::classic;
 
-    bool parse_properties_simple(std::istream& is, PropertyList &pset)
-    {
-        return PropertyParser::simple_parse<property_set_grammar, PropertyList>(is, pset);
+	is >> std::noskipws;
+
+        typedef std::istreambuf_iterator<char> base_iterator_type;
+        base_iterator_type in_begin(is);
+    
+        // convert input iterator to forward iterator, usable by spirit parser
+        typedef boost::spirit::multi_pass<base_iterator_type> forward_iterator_type;
+        forward_iterator_type fwd_begin = boost::spirit::make_default_multi_pass(in_begin);
+        forward_iterator_type fwd_end;
+
+        // wrap forward iterator with position iterator, to record the position
+    	typedef classic::position_iterator2<forward_iterator_type> pos_iterator_type;
+    	pos_iterator_type position_begin(fwd_begin, fwd_end, filename);
+    	pos_iterator_type position_end;
+
+	// typedef forward_iterator_type pos_iterator_type;
+	// pos_iterator_type position_begin(fwd_begin);
+    	// pos_iterator_type position_end;
+
+        qi::rule<pos_iterator_type> skipper = ascii::space | 
+	    '#' >> *(ascii::char_ - qi::eol) >> qi::eol; 
+
+	property_set_grammar<pos_iterator_type, qi::rule<pos_iterator_type> > g;
+	bool r = false;
+	try {
+            r = phrase_parse(position_begin, 
+                             position_end, 
+			     g, skipper, pset);
+	}
+	catch(const qi::expectation_failure<pos_iterator_type>& e) {
+            const classic::file_position_base<std::string>& pos = e.first.get_position();
+            std::stringstream msg;
+            msg <<
+                "parse error at file " << pos.file <<
+                " line " << pos.line << " column " << pos.column << std::endl <<
+                "'" << e.first.get_currentline() << "'" << std::endl <<
+                std::setw(pos.column) << " " << "^- here";
+            throw std::runtime_error(msg.str());
+            // throw std::runtime_error("error");
+        }
+
+	return r;
     }
 
 }

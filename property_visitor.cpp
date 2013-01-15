@@ -6,30 +6,29 @@
 #include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 
-#include <gen_parse.hpp>
 #include <property_parser.hpp>
 #include <property_visitor.hpp>
 
 namespace PropertyParser {
 
-    PrintPropertyVisitor::PrintPropertyVisitor() : indent_level(0) {}
+    PrintPropertyVisitor::PrintPropertyVisitor(std::ostream &o) : indent_level(0), out(o) {}
 
     void PrintPropertyVisitor::operator()(const Property &p) 
     {
-        for (unsigned i=0; i<indent_level; ++i) std::cout << "  ";
-        std::cout << p.name << "=" << p.value << std::endl;
+        for (unsigned i=0; i<indent_level; ++i) out << "  ";
+        out << p.name << "=" << p.value << ";" << std::endl;
     }
 
     void PrintPropertyVisitor::operator()(const PropertyList &pl) 
     {
-        for (int i=0; i<indent_level; ++i) std::cout << "  ";
-        std::cout << pl.type << "(" << pl.name << ") {" << std::endl;
+        for (int i=0; i<indent_level; ++i) out << "  ";
+        out << pl.type << "(" << pl.name << ") {" << std::endl;
         indent_level++;
         for (auto x : pl.children) 
             boost::apply_visitor(std::ref(*this), x);
         indent_level--;
-        for (int i=0; i<indent_level; ++i) std::cout << "  ";
-        std::cout << "}" << std::endl;
+        for (int i=0; i<indent_level; ++i) out << "  ";
+        out << "};" << std::endl;
     }
 
     MatchNameVisitor::MatchNameVisitor(const std::string &n) : name(n) {}

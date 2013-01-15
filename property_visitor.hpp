@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <ostream>
 #include <property.hpp>
 #include <property_parser.hpp>
 
@@ -14,7 +15,8 @@ namespace PropertyParser {
 
     struct PrintPropertyVisitor : public boost::static_visitor<> {
         int indent_level;
-        PrintPropertyVisitor();
+	std::ostream &out;
+        PrintPropertyVisitor(std::ostream &o);
         void operator()(const Property &p);
         void operator()(const PropertyList &pl);
     };

@@ -15,23 +15,14 @@ int main(int argc, char *argv[])
     
     PropertyParser::PropertyList plist1;
 
-    string alltext;
-    while (!f1.eof()) {
-	string line;
-	getline(f1, line);
-	alltext += line;
-    }
-
     bool result = false;
     try {
-	istringstream iss(alltext);
-	result = PropertyParser::parse_properties_simple(iss, plist1);
-	//result = PropertyParser::parse_properties(iss, argv[1],  plist1);
+	result = PropertyParser::parse_properties(f1, string(argv[1]), plist1);
     } catch (const exception &err) {
 	cout << err.what() << endl;
     }
     cout << "Result = " << result << endl;
-
-    PropertyParser::PrintPropertyVisitor pvis;
+    
+    PropertyParser::PrintPropertyVisitor pvis(cout);
     pvis(plist1);
 }

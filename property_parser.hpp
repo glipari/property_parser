@@ -7,10 +7,10 @@
 #include <property.hpp>
 
 namespace PropertyParser {
-    bool parse_properties(std::istream &is, const std::string &filename,
-                          PropertyList &pset);
+    // bool parse_properties(std::istream &is, const std::string &filename,
+    //                       PropertyList &pset);
 
-    bool parse_properties_simple(std::istream& input, PropertyList &pset);
+    bool parse_properties(std::istream& input, const std::string &filename, PropertyList &pset);
 }
 
 #endif
